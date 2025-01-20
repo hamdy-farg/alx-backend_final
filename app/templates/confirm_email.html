@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            color: #333;
+        }
+        .content {
+            padding: 20px 0;
+            text-align: center;
+        }
+        .content p {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.6;
+        }
+        .button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007bff;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 14px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Confirm Your Email Address</h1>
+        </div>
+        <div class="content">
+            <p>Thank you for Verify! Please confirm your email address by clicking the button below:</p>
+            <a href="{{ confirm_url }}" class="button">Confirm Email</a>
+            <p>If the button doesn't work, copy and paste the following link into your browser:</p>
+            <p><a href="{{ confirm_url }}">{{ confirm_url }}</a></p>
+        </div>
+        <div class="footer">
+            <p>If you did not verify  this account, you can safely ignore this email.</p>
+        </div>
+    </div>
+</body>
+</html>

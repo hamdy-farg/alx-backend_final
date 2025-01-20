@@ -1,4 +1,4 @@
-from db import db
+from extension import db
 from models.base import BaseModel
 from models.enum import StatusEnum
 
@@ -12,7 +12,7 @@ class BookModel(BaseModel):
     #
     
     date =  db.Column(db.Date, nullable=False)
-    start_time = db.Column(db.Time, nullable=False)
+    start_time = db.Column(db.Time, nullable=False) 
     end_time = db.Column(db.Time, nullable=False)
     #
     client = db.relationship("UserModel", back_populates="booked")  # Back reference to Room

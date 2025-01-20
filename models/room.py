@@ -1,10 +1,10 @@
-from db import db
+from extension import db
 from models.base import BaseModel
 
 class RoomModel(BaseModel):
     __tablename__ = "room"
     title = db.Column(db.String(120), nullable=False)
-    description = db.Column(db.String(120), nullable= False, primary_key= False)
+    description = db.Column(db.Text(), nullable= False, primary_key= False)
     price_per_hour = db.Column(db.Float(precision=2), nullable=False)  
     capacity = db.Column(db.Integer(), nullable=False)  
     image = db.Column(db.String(200), nullable=True)
