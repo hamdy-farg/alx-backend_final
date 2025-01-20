@@ -1,6 +1,4 @@
 import os
-from resource.booked import blp as BookedBluePrint
-from resource.room import blp as RoomBluePrint
 from resource.user import blp as UserBluePrint
 from resource.work_space import blp as WorkSpaceBluePrint
 
@@ -19,12 +17,11 @@ class Config(object):
     #flask smorest configuration
     API_TITLE = "UDEMY FLASK TEST"
     API_VERSION = "v1.0"
-    OPENAPI_VERSION ='3.0.3'
-    OPENAPI_URL_PREFIX =  "/"
-    OPENAPI_SWAGGER_UI_PATH = '/swagger'
-    OPENAPI_SWAGGER_UI_URL = 'https://cdn.jsdelivr.net/npm/swagger-ui-dist/' 
-    SQLALCHEMY_DATABASE_URI =  'mysql+mysqlconnector://root:0000@127.0.0.1:3306/bankdb1'
-# "mysql://avnadmin:AVNS_ubxukWZBkNZDpbXVqm4@mysql-9922e3a-farghamdy72-61e3.b.aivencloud.com:25133/defaultdb"
+    OPENAPI_VERSION = "3.0.3"
+    OPENAPI_URL_PREFIX = "/"
+    OPENAPI_SWAGGER_UI_PATH = "/swagger"
+    OPENAPI_SWAGGER_UI_URL = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
+    SQLALCHEMY_DATABASE_URI = "mysql://avnadmin:AVNS_JwDR53p0C_FqW-lxnmo@mysql-9922e3a-farghamdy72-61e3.b.aivencloud.com:25133/defaultdb"
     SQLALCHEMY_TRACK_MODIFICATION = False
     #JWT config
     JWT_SECRET_KEY = "105119963872580105811750424767882539424"
@@ -50,12 +47,7 @@ def create_app():
     #
     api.register_blueprint(UserBluePrint)
     api.register_blueprint(WorkSpaceBluePrint)
-    api.register_blueprint(RoomBluePrint)
-    api.register_blueprint(BookedBluePrint)
-    
 
-
-    
     db.init_app(app)
     def create_tables():
         if not app.has_initialized:
@@ -66,7 +58,6 @@ def create_app():
 app = create_app()
 
 jwt = JWTManager(app)
-cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
 
 @jwt.additional_claims_loader

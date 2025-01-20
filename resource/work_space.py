@@ -88,6 +88,16 @@ class WorkSpcae(MethodView):
             }
         else:
             abort(500, messsage="error accured while saving in db")
+            return work_space
+
+    
+@blp.route("/workspace/image/<string:work_space_id>", strict_slashes=False)
+class WorkSpaceImages(MethodView):
+    # @jwt_required()
+    # @blp.arguments(PlainWorkSpaceImagesSchema)
+    def get(self, work_space_id):
+        # owner_id = get_jwt_identity()
+        work_space = WorkSpaceModel.query.filter(WorkSpaceModel.id == work_space_id).first()
 
     
 

@@ -154,10 +154,14 @@ class TokenRefresh(MethodView):
         current_user_id = get_jwt_identity()
         new_token = create_access_token(identity=current_user_id, fresh=False)
    
+        # refresh_token = create_refresh_token(current_user_id)
+        # jti = get_jwt()['jti']
+        # BLOCKLIST.add(jti)
 
         return jsonify(
             {
                 "access_token":new_token,
+                # "refresh_token": refresh_token
             }
         ),201
 

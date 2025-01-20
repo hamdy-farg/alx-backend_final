@@ -7,6 +7,7 @@ from flask_jwt_extended import get_jwt, jwt_required
 from flask_smorest import Blueprint, abort
 
 from models import BookModel, RoomModel, WorkSpaceModel
+from models import RoomModel, WorkSpaceModel
 from schema import (DATEFORMAT, TIMEFORMAT, PlainRoomSchema, RoomSchema,
                     RoomUpdateSchema, SuccessSchema)
 
@@ -100,6 +101,8 @@ class Room(MethodView):
         room.update(**room_data)
         if room is not None:
             room.image = room.convert_image_to_link(route="/room/image/",iamge_id = room.id)
+            room.image = f"{os.getenv("LOCALHOST","http://127.0.0.1:5000/")}"+ "room/image/"+f"{room.id}"
+
             return room
        
     @blp.arguments(RoomSchema, location="form")

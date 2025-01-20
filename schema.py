@@ -117,7 +117,13 @@ class PlainRoomSchema(Schema):
             price = int(value)
         except Exception as e:
             raise ValidationError("you must send capacity in integer formate")
-   
+    @validates("price_per_hour")
+    def validate_description(self, value):
+        """Validate price per hour."""
+        try:
+            price = float(value)
+        except Exception as e:
+            raise ValidationError("you must send price in flaot formate")
         
 class RoomSchema(Schema):
     room_id = fields.Str(required=True)
@@ -212,6 +218,9 @@ class PlainUserUpdateSchema(Schema):
                 raise ValidationError("Name must be between 2 and 50 characters long.")
 
 
+
+class PlainWorkSpaceImagesSchema(Schema):
+    photos = fields.Dict(dump_only=True)
 class PlainBookedSchema(Schema):
     id = fields.Str(dump_only=True)
     client_id = fields.Str(required=True)
