@@ -18,7 +18,6 @@ blp = Blueprint("Users","user", description="CRUD operation with user" )
 from block_list import BLOCKLIST
 
 
-
 @blp.route("/register", strict_slashes=False)
 class UserRegister(MethodView):
     @blp.arguments(PlainUserRegisterSchema, location="form")
@@ -133,14 +132,14 @@ class TokenRefresh(MethodView):
     def post(self):
         current_user_id = get_jwt_identity()
         new_token = create_access_token(identity=current_user_id, fresh=False)
-        refresh_token = create_refresh_token(current_user_id)
-        jti = get_jwt()['jti']
-        BLOCKLIST.add(jti)
+        # refresh_token = create_refresh_token(current_user_id)
+        # jti = get_jwt()['jti']
+        # BLOCKLIST.add(jti)
 
         return jsonify(
             {
                 "access_token":new_token,
-                "refresh_token": refresh_token
+                # "refresh_token": refresh_token
             }
         ),201
 
