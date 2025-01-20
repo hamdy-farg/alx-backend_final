@@ -1,6 +1,6 @@
 from passlib.hash import pbkdf2_sha256
 
-from db import db
+from extension import db
 from models.base import BaseModel
 from models.enum import RoleEnum, StatusEnum
 
@@ -8,7 +8,9 @@ from models.enum import RoleEnum, StatusEnum
 class UserModel(BaseModel):
     # __abstract__= True 
     __tablename__ = "user"
-    email_address = db.Column(db.String(80), nullable=True, unique=True)
+    email_address = db.Column(db.String(80), nullable=False, unique=True)
+    is_confirmed = db.Column(db.BOOLEAN, nullable=True, default=False)
+    confirmed_on = db.Column(db.DateTime(timezone=True), nullable=True)
     phone_number = db.Column(db.String(80), nullable=True, unique=True)
     address = db.Column(db.Text, nullable=True)
     f_name = db.Column(db.String(80), nullable=True)
@@ -17,7 +19,9 @@ class UserModel(BaseModel):
     password = db.Column(db.String(200), nullable=False)
     workSpaces = db.relationship("WorkSpaceModel", back_populates="owner", lazy="dynamic", cascade="all, delete")
     booked = db.relationship("BookModel", back_populates="client",lazy="dynamic" , cascade="all, delete")
+    notifications =  db.relationship("NotificationModel", back_populates="user", lazy="dynamic", cascade="all, delete")
     role = db.Column(db.Enum(RoleEnum), nullable=False, default=RoleEnum.client)
+    fcm_token = db.Column(db.Text, nullable=True)
 
 
 

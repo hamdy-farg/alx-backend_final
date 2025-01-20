@@ -7,9 +7,8 @@ from flask_jwt_extended import get_jwt, jwt_required
 from flask_smorest import Blueprint, abort
 
 from models import BookModel, RoomModel, WorkSpaceModel
-from models import RoomModel, WorkSpaceModel
 from schema import (DATEFORMAT, TIMEFORMAT, PlainRoomSchema, RoomSchema,
-                    RoomUpdateSchema, SuccessSchema)
+                    RoomsSchema, RoomUpdateSchema, SuccessSchema)
 
 blp = Blueprint("Room", "room", description='CRUD on rooms')
 
@@ -31,7 +30,7 @@ class Room(MethodView):
         print(work_space_id)
         work_space = WorkSpaceModel.query.filter(WorkSpaceModel.id == work_space_id).first()
         if work_space is None:
-            abort(401, "this work space not found")
+            abort(401,message= "this work space not found")
         start_date = room_data.get("start_date")
         end_date = room_data.get("end_date")
         start_time = room_data.get("start_time")
@@ -73,7 +72,8 @@ class Room(MethodView):
             abort(4014 , message= error_msg)
         room_is_save = room.save()
         if room_is_save:
-            room.image = f"{os.getenv("LOCALHOST","http://127.0.0.1:5000/")}"+ "room/image/"+f"{room.id}"
+            room.image =room.convert_image_to_link(route="/room/image/", image_id=room.id)
+            #f"{os.getenv("LOCALHOST","http://127.0.0.1:5000/")}"+ "room/image/"+f"{room.id}"
             return room
         else:
             return abort(404,message ="an error accured while saving user in db")
@@ -81,33 +81,50 @@ class Room(MethodView):
     @blp.arguments(RoomSchema, location="form")
     @blp.response(200, PlainRoomSchema)
     def get(self, room_data):
+
         room = RoomModel.query.filter(RoomModel.id == room_data.get("room_id")).first()
         if room is not None:
-            room.image = f"{os.getenv("LOCALHOST","http://127.0.0.1:5000/")}"+ "room/image/"+f"{room.id}"
+            room.image = room.convert_image_to_link(route="/room/image/", image_id=room.id)
+            #f"{os.getenv("LOCALHOST","http://127.0.0.1:5000/")}"+ "room/image/"+f"{room.id}"
             return room
         else:
             abort(404, "your room is not found")
+
+
+    @jwt_required()
     @blp.arguments(RoomUpdateSchema, location="form")
     @blp.response(200, PlainRoomSchema)
     def put(self, room_data):
+        """ to update one room by id"""
+        jwt = get_jwt()
+        if not jwt.get("is_admin"):
+            abort(400, message= "admin provilage are required")
         room = RoomModel.query.filter(RoomModel.id == room_data.get("room_id")).first()
         if room is None:
             abort(404, "your room is not found")
-        saved = room.save_image(request_data = request, folder_name="room_pics")
-        if isinstance(saved, str):
-            error_msg = saved
-            abort(401, message = error_msg)
-        room.save()
+        try:
+            if request.files["image"] != None:
+                saved = room.save_image(request_data = request, folder_name="room_pics")
+                if isinstance(saved, str):
+                    error_msg = saved
+                    abort(401, message = error_msg)
+                    room.save()
+        except  Exception as e:
+            print(e)
+       
         room.update(**room_data)
         if room is not None:
-            room.image = room.convert_image_to_link(route="/room/image/",iamge_id = room.id)
-            room.image = f"{os.getenv("LOCALHOST","http://127.0.0.1:5000/")}"+ "room/image/"+f"{room.id}"
-
+            room.image = room.convert_image_to_link(route="/room/image/",image_id = room.id)
             return room
-       
+
+    @jwt_required()   
     @blp.arguments(RoomSchema, location="form")
     @blp.response(200, SuccessSchema)
     def delete(self, room_data):
+        """ delete specific work space"""
+        jwt = get_jwt()
+        if not jwt.get("is_admin"):
+            abort(400, message= "admin provilage are required")
         room = RoomModel.query.filter(RoomModel.id == room_data.get("room_id")).first()
         if room is not None:
             room_deleted = room.delete()
@@ -121,13 +138,50 @@ class Room(MethodView):
                 return abort(200, message = "problem accured in server while deleteing")
         else:
             abort(404, message = "your room is not found")
-        
+ 
+
+
+
+@blp.route('/rooms/all')
+class GetAllWorkSpaceRoom(MethodView):
+    @blp.response(200, RoomsSchema)
+    def get(self):
+            """ to get work space rooms"""
+            rooms  = RoomModel.query.all()
+            RoomsList = []
+            if rooms is not None:
+                for room in rooms:
+                    room.image =room.convert_image_to_link(route="/room/image/", image_id=room.id)
+                    #f"{os.getenv("LOCALHOST","http://127.0.0.1:5000/")}"+ "room/image/"+f"{workSpaceRoom.id}"
+                    RoomsList.append(room)
+                return {"rooms":RoomsList}
+            abort(404,message =  "your work space is not found")
+
+
+@blp.route('/workspace/rooms')
+class GetAllWorkSpaceRoom(MethodView):
+    @blp.arguments(RoomsSchema, location="form")
+    @blp.response(200, RoomsSchema)
+    def post(self, room_data):
+            """ to get work space rooms"""
+            workSpace   = WorkSpaceModel.query.filter(WorkSpaceModel.id == room_data.get("work_space_id")).first()
+            RoomsList = []
+            if workSpace is not None:
+                workSpaceRoomsList =  workSpace.rooms
+                print(workSpaceRoomsList)
+                for workSpaceRoom in workSpaceRoomsList:
+                    workSpaceRoom.image =workSpaceRoom.convert_image_to_link(route="/room/image/", image_id=workSpaceRoom.id)
+                    #f"{os.getenv("LOCALHOST","http://127.0.0.1:5000/")}"+ "room/image/"+f"{workSpaceRoom.id}"
+                    RoomsList.append(workSpaceRoom)
+                return {"work_space_id":workSpace.id,"rooms":RoomsList}
+            abort(404,message =  "your work space is not found")
+
+
+       
 @blp.route("/room/image/<string:room_id>")
 class RoomImage(MethodView):
+    """ to provide image end point to display image"""
     def get(self, room_id):
         room = RoomModel.query.filter(RoomModel.id == room_id).first()
-        image = os.path.join(os.getcwd(), room.image)
-        return send_file(image,mimetype='image/jpeg')
-
-
-
+        image = os.path.join(os.getcwd(),"assets", "user","room_pics", room.image)
+        return send_file(image, mimetype='image/jpeg')
