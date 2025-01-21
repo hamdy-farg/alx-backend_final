@@ -6,6 +6,7 @@ from sqlalchemy import and_, or_
 from models import BookModel, NotificationModel, RoleEnum, RoomModel, UserModel
 from models.enum import StatusEnum
 from extension import socketio
+from utils.utilities import Utilities
 from schema import (
     DATEFORMAT,
     TIMEFORMAT,
@@ -17,6 +18,7 @@ from schema import (
     RoomsSchema,
     SuccessSchema,
     updateBookStatusSchema,
+    ClientBookListSchema,
 )
 from utils import Utilities
 from utils import BookingService
@@ -109,7 +111,9 @@ class Book(MethodView):
         end_time = datetime.strptime(end_time, TIMEFORMAT).time()
 
         date = book_data.get("date")
-        available_slots = get_avialable_time(room_id=book.room.id, date=date)
+        available_slots = BookingService().get_avialable_time(
+            room_id=book.room.id, date=date
+        )
         for slot in available_slots:
 
             print(slot[0] <= start_time and slot[1] >= end_time)
@@ -135,20 +139,31 @@ class Book(MethodView):
         return {
             "code": 200,
             "message": "the booked deleted successfully",
-            "success": True,
+            "status": True,
         }
 
 
 @blp.route("/client/book")
 class GetAll(MethodView):
-    @blp.arguments(BookListSchema, location="form")
-    @blp.response(200, BookListSchema)
-    def get(self, book_data):
-        client_id = book_data.get("client_id")
+    @jwt_required()
+    # @blp.arguments(ClientBookQueryParamsSchema, location="query")
+    @blp.response(200, ClientBookListSchema)
+    def post(self):
+        client_id = get_jwt_identity()
         client = UserModel.query.filter(UserModel.id == client_id).first()
+        books = []
+        for book in client.booked.all():
+            room = RoomModel.query.filter(RoomModel.id == book.room_id).first()
+            book.room_title = room.title
+            book.work_space_title = room.workSpace.title
+            book.room_image = room.convert_image_to_link(
+                route="/room/image/", image_id=room.id
+            )
+            books.append(book)
+        print(books)
         if client is None:
             abort(404, message="your client with your id is not found")
-        return client
+        return {"Bookings": books}
 
 
 @blp.route("/room/book")

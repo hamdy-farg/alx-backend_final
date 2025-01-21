@@ -28,7 +28,7 @@ class VerifyEmail(MethodView):
         html = render_template("confirm_email.html", confirm_url=confirm_url)
         subject = "Please confirm your email"
         Utilities.send_email(user.email_address, subject, html)
-        return {"code": 200, "message": "the code sent successfuly", "success": True}
+        return {"code": 200, "message": "the code sent successfuly", "status": True}
 
 
 @blp.route("/confirm/<token>")

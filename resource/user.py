@@ -151,7 +151,7 @@ class User(MethodView):
                 return {
                     "code":200,
                     "message": "delete successfully",
-                    "success": True}
+                    "status": True}
             else:
                 abort(500, message="error accured while deleteing user from db")       
         else:
@@ -209,7 +209,7 @@ class Logout(MethodView):
         return {
             "code":200,
             "message": "logout successfully",
-            "success": True}
+            "status": True}
 
 
 

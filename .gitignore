@@ -3,4 +3,7 @@ __pycache__
 .block_list
 *.pyc
 assets/
-# venv/
+venv/
+
+./venv/
+/venv
