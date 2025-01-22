@@ -241,12 +241,17 @@ class BookStatus(MethodView):
                 try:
                     if StatusEnum.approved == status:
                         description = "congartolatoin you book is approved"
+                        BookingService().emit_availability_updated(
+                            room_id=book.room_id,
+                            date=datetime.strftime(book.date, DATEFORMAT),
+                        )
+                    else:
+                        BookingService().emit_availability_updated(
+                            room_id=book.room_id,
+                            date=datetime.strftime(book.date, DATEFORMAT),
+                        )
 
                     # method to emit availability_updated event
-                    BookingService().emit_availability_updated(
-                        room_id=book.room_id,
-                        date=datetime.strftime(book.date, DATEFORMAT),
-                    )
                     notification = NotificationModel(
                         title="check your book status",
                         description=description,
@@ -260,6 +265,7 @@ class BookStatus(MethodView):
                         message=description,
                     )
                     notification.save()
+
                     # Utilities().sendNotification(fcm_token="cNoqZOtyTKmpT_ytoGuOcv:APA91bGeKKsLsP4YT698a79SfRICgbAzqAQIdz25MMDTzDofB34thSz8pt35YMaF_DLNYV_1q5LmfrRY4W0uO2NRD_1J1NBm8plq6fz_Cm2jLvcV_IYYgCQ", title="check your book status", message=description)
                     print(book.client.fcm_token, "hiiiiiiiiiiiiiiiiiii")
                 except Exception as e:
