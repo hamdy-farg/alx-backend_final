@@ -67,7 +67,7 @@ load_dotenv("./.env")
 app = create_app()
 ###########
 firebase_cred = credentials.Certificate(
-    "./push-notification-e2888-firebase-adminsdk-pq00w-375e5ce102.json"
+    "./push-notification-e2888-firebase-adminsdk-pq00w-31fb6e6880.json"
 )
 firebase_app = firebase_admin.initialize_app(firebase_cred)
 migrate = Migrate(app, db)  # Initialize Flask-Migrate
