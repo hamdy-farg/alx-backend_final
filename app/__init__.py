@@ -1,4 +1,5 @@
 import os
+from dotenv import load_dotenv
 from resource.booked import blp as BookedBluePrint
 from resource.notifcation import blp as notifcationBluePrint
 from resource.room import blp as RoomBluePrint
@@ -61,6 +62,7 @@ def create_app():
 
 ######
 
+load_dotenv("./.env")
 
 app = create_app()
 ###########
