@@ -12,7 +12,7 @@ class Config(object):
     OPENAPI_SWAGGER_UI_PATH = "/swagger"
     OPENAPI_SWAGGER_UI_URL = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
     SECURITY_PASSWORD_SALT = os.getenv("SECURITY_PASSWORD_SALT", "hi")
-    SQLALCHEMY_DATABASE_URI = "mysql://root:QoHGirHdGGWGycizxspQJFiGkXRRmGcm@mysql.railway.internal:3306/railway"
+    SQLALCHEMY_DATABASE_URI = "mysql://root:NvkrbXKRQBkZWoJEdNaKXbjFOhswsCsV@viaduct.proxy.rlwy.net:43954/railway"
     # "mysql-production-632e.up.railway.app"
     #  "mysql+mysqlconnector://root:0000@127.0.0.1:3306/bankdb1"
 
