@@ -50,8 +50,8 @@ class BookingService:
         bookings = BookModel.query.filter(
             BookModel.room_id == room.id,
             BookModel.date == date,
-            BookModel.status != StatusEnum.approved,
-            BookModel.status != StatusEnum.inProgress,
+            BookModel.status == StatusEnum.approved,
+            BookModel.status == StatusEnum.inProgress,
         ).all()
 
         available_slots = [(default_start_time, default_end_time)]
