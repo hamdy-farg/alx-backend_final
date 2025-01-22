@@ -6,7 +6,7 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Create a virtual environment
-# RUN python -m venv .venv
+RUN python -m venv .venv
 
 # Install dependencies
 RUN   pip install -r requirements.txt
