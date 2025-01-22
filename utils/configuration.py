@@ -1,4 +1,6 @@
 import os
+
+
 class Config(object):
     PROPAGATE_EXCEPTION = True
     # flask smorest configuration
@@ -32,4 +34,4 @@ class Config(object):
     MAIL_DEBUG = False
     MAIL_USERNAME = os.getenv("EMAIL_USER")
     MAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
-    SERVER_NAME = "192.168.100.72:5000"
+    SERVER_NAME = os.getenv("SERVER_NAME", "127.0.0.1:5000")

@@ -6,6 +6,8 @@ from flask import render_template, url_for
 from schema import SuccessSchema
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask.views import MethodView
+from datetime import datetime
+from extension import socketio
 
 blp = Blueprint(
     "Verification",
@@ -21,8 +23,11 @@ class VerifyEmail(MethodView):
     def post(self):
         user_id = get_jwt_identity()
         user = UserModel.query.filter(UserModel.id == user_id).first()
+
         if user == None:
             abort(404, message="user not found")
+        if user.is_confirmed == True:
+            abort(404, message="this account is confirmed before")
         token = Token.generate_token(user.email_address)
         confirm_url = url_for("Verification.Confirmation", token=token, _external=True)
         html = render_template("confirm_email.html", confirm_url=confirm_url)
@@ -39,8 +44,26 @@ class Confirmation(MethodView):
         if user == None:
             abort(404, message="user not found")
         if user.is_confirmed == True:
+            room_name = f"{user.email_address}_"
+
+            print(f"confirmed {room_name}")
+            socketio.emit(
+                "verification_updates",
+                {
+                    "confirmed": "True",
+                },
+                to=room_name,
+            )
             return render_template("is_confirmed_before.html")
 
         if user.email_address == email:
             user.update(is_confirmed=True, confirmed_on=datetime.now())
+            room_name = f"{user.email_address}_"
+            socketio.emit(
+                "verification_updates",
+                {
+                    "confirmed": "True",
+                },
+                to=room_name,
+            )
             return render_template("success_confirm.html")

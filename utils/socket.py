@@ -37,6 +37,30 @@ def handle_connect(auth):
 #     disconnect()
 
 
+@socketio.on("join_to_verify")
+def handle_join_room(data):
+    print(data.get("email"))
+    email = data.get("email")
+    try:
+        room_name = f"{email}_"
+        join_room(room_name)
+    except Exception as e:
+        print(str(e))
+        disconnect()
+
+
+@socketio.on("leave_to_verify")
+def handle_leave_room(data):
+
+    email = data.get("email")
+    try:
+        room_name = f"{email}_"
+        leave_room(room_name)
+    except Exception as e:
+        print(str(e))
+        disconnect()
+
+
 @socketio.on("join_room")
 def handle_join_room(data):
     token = data.get("token")

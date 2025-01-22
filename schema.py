@@ -189,6 +189,7 @@ class PlainUserRegisterSchema(PlainUserLoginSchema):
     phone_number = fields.Str(dump_only=True)
     secret = fields.Str()
     image = fields.Str(dump_only=True)
+    is_confirmed = fields.Str(dump_only=True)
 
     @validates("f_name")
     @validates("l_name")
