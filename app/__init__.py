@@ -1,4 +1,5 @@
 import os
+import json
 from dotenv import load_dotenv
 from resource.booked import blp as BookedBluePrint
 from resource.notifcation import blp as notifcationBluePrint
@@ -63,12 +64,34 @@ def create_app():
 ######
 
 load_dotenv("./.env")
-
+FIREBASE_PRIVATE_KEY = os.getenv("FIREBASE_PRIVATE_KEY")
+FIREBASE_PROJECT_ID = os.getenv("FIREBASE_PROJECT_ID")
+FIREBASE_CLIENT_EMAIL = os.getenv("FIREBASE_CLIENT_EMAIL")
+FIREBASE_CLIENT_ID = os.getenv("FIREBASE_CLIENT_ID")
+FIREBASE_AUTH_URI = os.getenv("FIREBASE_AUTH_URI")
+FIREBASE_TOKEN_URI = os.getenv("FIREBASE_TOKEN_URI")
+FIREBASE_AUTH_PROVIDER_X509_CERT_URL = os.getenv("FIREBASE_AUTH_PROVIDER_X509_CERT_URL")
+FIREBASE_CLIENT_X509_CERT_URL = os.getenv("FIREBASE_CLIENT_X509_CERT_URL")
+FIREBASE_UNIVERSE_DOMAIN = os.getenv("FIREBASE_UNIVERSE_DOMAIN")
 app = create_app()
 ###########
+print(os.getenv("FIREBASE_CONSOLE_SECRET"))
 firebase_cred = credentials.Certificate(
-    "./push-notification-e2888-firebase-adminsdk-pq00w-31fb6e6880.json"
+    {
+        "type": "service_account",
+        "project_id": FIREBASE_PROJECT_ID,
+        "private_key_id": "f553eb33d483b67813e823a95f8c9949e8e12645",
+        "private_key": FIREBASE_PRIVATE_KEY,
+        "client_email": FIREBASE_CLIENT_EMAIL,
+        "client_id": FIREBASE_CLIENT_ID,
+        "auth_uri": FIREBASE_AUTH_URI,
+        "token_uri": FIREBASE_TOKEN_URI,
+        "auth_provider_x509_cert_url": FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
+        "client_x509_cert_url": FIREBASE_CLIENT_X509_CERT_URL,
+        "universe_domain": FIREBASE_UNIVERSE_DOMAIN,
+    }
 )
+
 firebase_app = firebase_admin.initialize_app(firebase_cred)
 migrate = Migrate(app, db)  # Initialize Flask-Migrate
 # cors = CORS(app, resources={r"/*": {"origins": "*"}})

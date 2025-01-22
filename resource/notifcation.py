@@ -29,7 +29,8 @@ class SubscribeNotification(MethodView):
         print(data)
         user_id = get_jwt_identity()
         print(user_id)
-        fcm_token = "dQSjfcZIRhCPNd6LGjOSrS:APA91bHc7N0bdPWTcVQ4_HaYTrehjjvFmzPfBqgROYXTKCv0cVxxXSKWdPdHBcTeDo6dA7KSGZcrHJC2WdETO_3AKFUnvSTfsiUtOhvN4R5LTRsm8DKcGpk"
+        fcm_token = data.get("fcm_token")
+        
         role = data.get("role")
         user = UserModel.query.filter(UserModel.id == user_id).first()
         if user == None:
