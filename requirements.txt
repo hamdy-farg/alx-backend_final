@@ -15,5 +15,5 @@ SQLAlchemy==2.0.36
 flask_mail==0.9.1
 firebase_admin==6.1.0
 flask_socketio==5.3.4
-Pillow==10.0.0
+pPillow==9.5.0
 
