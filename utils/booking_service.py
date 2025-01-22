@@ -9,86 +9,101 @@ from schema import (
 
 
 class BookingService:
-    def get_avialable_time(self, room_id: str, date: str):
-        """get available time slots to know which time room is available at
+    def get_rejected_and_unselected_time(self, room_id: str, date: str):
+        """Get time slots that are rejected or not selected.
 
         - ARGUMENTS
             - room_id as string
-            - date : as string
+            - date as string
         - RETURN
-            - success: List of avialable room
-            - fial: dict{
+            - success: List of rejected or unselected time slots
+            - fail: dict {
                 code: int,
                 message: str,
-                satus: bool}
+                status: bool
+            }
         """
         room = RoomModel.query.filter(RoomModel.id == room_id).first()
         if room is None:
-            abort(
-                404,
-                message="room with this id not found",
-            )
+            abort(404, message="Room with this ID not found")
 
         try:
             date = datetime.strptime(date, DATEFORMAT).date()
         except Exception:
-            abort(403, message="invalid date formate")
+            abort(403, message="Invalid date format")
+
         if date < datetime.now().date():
-            abort(
-                401,
-                message="you can not select date in the past",
-            )
+            abort(401, message="You cannot select a date in the past")
         if date > room.end_date or date < room.start_date:
-            abort(
-                401,
-                message="invalid date select is out of range",
-            )
+            abort(401, message="Invalid date, selection is out of range")
+
+        # Default available time range for the room
         default_start_time = room.start_time
         default_end_time = room.end_time
+        default_slots = [(default_start_time, default_end_time)]
 
-        bookings = BookModel.query.filter(
+        # Retrieve approved and in-progress bookings
+        active_bookings = BookModel.query.filter(
             BookModel.room_id == room.id,
             BookModel.date == date,
-            BookModel.status == StatusEnum.approved
-            or BookModel.status == StatusEnum.inProgress,
+            BookModel.status.in_([StatusEnum.approved, StatusEnum.inProgress]),
         ).all()
 
-        available_slots = [(default_start_time, default_end_time)]
-        for booking in bookings:
+        # Subtract active bookings from the default available time
+        available_slots = default_slots
+        for booking in active_bookings:
             new_slots = []
             for start, end in available_slots:
                 if booking.start_time >= end or booking.end_time <= start:
+                    # No overlap
                     new_slots.append((start, end))
                 else:
+                    # Split the slot to remove the booked time
                     if start < booking.start_time:
                         new_slots.append((start, booking.start_time))
                     if end > booking.end_time:
                         new_slots.append((booking.end_time, end))
             available_slots = new_slots
-        return available_slots
 
-    def emit_availability_updated(self, room_id: str, date: str):
-        """ " emit availability_updated event to get new slots hours update for specific hours
+        # Retrieve rejected bookings
+        rejected_bookings = BookModel.query.filter(
+            BookModel.room_id == room.id,
+            BookModel.date == date,
+            BookModel.status == StatusEnum.rejected,
+        ).all()
+
+        # Extract rejected slots
+        rejected_slots = [
+            (booking.start_time, booking.end_time) for booking in rejected_bookings
+        ]
+
+        # Combine rejected and unselected slots
+        all_slots = available_slots + rejected_slots
+        all_slots.sort()  # Sort by time for clarity
+
+        return all_slots
+
+    def emit_rejected_and_unselected_time(self, room_id: str, date: str):
+        """Emit event to get rejected and unselected time slots for specific hours.
+
         - ARGUMENTS
             - room_id as string
-            - date : as string
+            - date as string
         - RETURN
             - Void
         """
-        available_slots = BookingService().get_avialable_time(
-            room_id=room_id, date=date
-        )
+        slots = self.get_rejected_and_unselected_time(room_id=room_id, date=date)
         formatted_slots = [
             {
                 "start_time": slot[0].strftime(TIMEFORMAT),
                 "end_time": slot[1].strftime(TIMEFORMAT),
             }
-            for slot in available_slots
+            for slot in slots
         ]
 
         room_name = f"{room_id}_{date}"
         socketio.emit(
             "availability_updated",
-            {"room_id": room_id, "date": date, "available_slots": formatted_slots},
+            {"room_id": room_id, "date": date, "slots": formatted_slots},
             to=str(room_name),
         )
