@@ -242,12 +242,11 @@ class BookStatus(MethodView):
                     if StatusEnum.approved == status:
                         description = "congartolatoin you book is approved"
 
-                    else:
-                        # method to emit availability_updated event
-                        BookingService().emit_availability_updated(
-                            room_id=book.room_id,
-                            date=datetime.strftime(book.date, DATEFORMAT),
-                        )
+                    # method to emit availability_updated event
+                    BookingService().emit_availability_updated(
+                        room_id=book.room_id,
+                        date=datetime.strftime(book.date, DATEFORMAT),
+                    )
                     notification = NotificationModel(
                         title="check your book status",
                         description=description,
